@@ -630,7 +630,7 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
       }
     }
 
-    this.redrawLines(false);
+    this.redrawLines();
   }
 
   /**
