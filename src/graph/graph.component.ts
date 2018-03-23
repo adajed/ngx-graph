@@ -626,8 +626,8 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
 
                 // determine new arrow position
                 const dir = sourceNode.x <= targetNode.x ? -1 : 1;
-                const startingPoint = { x: sourceNode.x - dir * (sourceNode.height / 2), y: sourceNode.y };
-                const endingPoint = { x: targetNode.x + dir * (targetNode.height / 2), y: targetNode.y };
+                const startingPoint = { x: sourceNode.x - dir * (sourceNode.width / 2), y: sourceNode.y };
+                const endingPoint = { x: targetNode.x + dir * (targetNode.width / 2), y: targetNode.y };
 
                 // generate new points
                 link.points = [startingPoint, endingPoint];
