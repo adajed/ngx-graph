@@ -625,12 +625,12 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
                 const targetNode = this._nodes.find(n => n.id === link.target);
 
                 // determine new arrow position
-                const dir = sourceNode.y <= targetNode.y ? -1 : 1;
-                // const startingPoint = { x: sourceNode.x, y: (sourceNode.y - dir * (sourceNode.height / 2)) };
-                // const endingPoint = { x: targetNode.x, y: (targetNode.y + dir * (targetNode.height / 2)) };
+                const dir = sourceNode.x <= targetNode.x ? -1 : 1;
+                const startingPoint = { x: sourceNode.x - dir * (sourceNode.height / 2), y: sourceNode.y };
+                const endingPoint = { x: targetNode.x + dir * (targetNode.height / 2), y: targetNode.y };
 
                 // generate new points
-                link.points = [sourceNode, targetNode];
+                link.points = [startingPoint, endingPoint];
                 const line = this.generateLine(link.points);
                 this.calcDominantBaseline(link);
                 link.oldLine = link.line;

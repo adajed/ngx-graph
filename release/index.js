@@ -38884,11 +38884,11 @@ var graph_component_GraphComponent = (function (_super) {
                 var sourceNode = this_2._nodes.find(function (n) { return n.id === link.source; });
                 var targetNode = this_2._nodes.find(function (n) { return n.id === link.target; });
                 // determine new arrow position
-                var dir = sourceNode.y <= targetNode.y ? -1 : 1;
-                // const startingPoint = { x: sourceNode.x, y: (sourceNode.y - dir * (sourceNode.height / 2)) };
-                // const endingPoint = { x: targetNode.x, y: (targetNode.y + dir * (targetNode.height / 2)) };
+                var dir = sourceNode.x <= targetNode.x ? -1 : 1;
+                var startingPoint = { x: sourceNode.x - dir * (sourceNode.height / 2), y: sourceNode.y };
+                var endingPoint = { x: targetNode.x + dir * (targetNode.height / 2), y: targetNode.y };
                 // generate new points
-                link.points = [sourceNode, targetNode];
+                link.points = [startingPoint, endingPoint];
                 var line = this_2.generateLine(link.points);
                 this_2.calcDominantBaseline(link);
                 link.oldLine = link.line;
