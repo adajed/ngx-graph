@@ -38768,12 +38768,12 @@ var graph_component_GraphComponent = (function (_super) {
      *
      * @memberOf GraphComponent
      */
-    GraphComponent.prototype.generateLine = function (points) {
+    GraphComponent.prototype.generateLine = function (points, ifHorizontal) {
+        if (ifHorizontal === void 0) { ifHorizontal = true; }
         var sourceNode = points[0];
         var targetNode = points[points.length - 1];
-        var l = external__d3_shape_["linkHorizontal"]()
-            .x(function (d) { return d[0]; })
-            .y(function (d) { return d[1]; });
+        var l = ifHorizontal ? external__d3_shape_["linkHorizontal"]() : external__d3_shape_["linkVertical"]();
+        l = l.x(function (d) { return d[0]; }).y(function (d) { return d[1]; });
         return l({
             source: [sourceNode.x, sourceNode.y],
             target: [targetNode.x, targetNode.y]
@@ -38885,11 +38885,42 @@ var graph_component_GraphComponent = (function (_super) {
                 var targetNode = this_2._nodes.find(function (n) { return n.id === link.target; });
                 // determine new arrow position
                 var dir = sourceNode.x <= targetNode.x ? -1 : 1;
-                var startingPoint = { x: sourceNode.x - dir * (sourceNode.width / 2), y: sourceNode.y };
-                var endingPoint = { x: targetNode.x + dir * (targetNode.width / 2), y: targetNode.y };
+                var startingPoint = {
+                    x: sourceNode.x - dir * (sourceNode.width / 2),
+                    y: sourceNode.y
+                };
+                var endingPoint = {
+                    x: targetNode.x + dir * (targetNode.width / 2),
+                    y: targetNode.y
+                };
+                var ifHorizontal = true;
+                if ((dir === -1 && startingPoint.x >= endingPoint.x) ||
+                    (dir === 1 && startingPoint.x <= endingPoint.x)) {
+                    dir = sourceNode.y <= targetNode.y ? -1 : 1;
+                    ifHorizontal = false;
+                    startingPoint = {
+                        x: sourceNode.x,
+                        y: sourceNode.y - dir * (sourceNode.height / 2)
+                    };
+                    endingPoint = {
+                        x: targetNode.x,
+                        y: targetNode.y + dir * (targetNode.height / 2)
+                    };
+                    // } else if (dir === 1 && startingPoint.x <= endingPoint.x) {
+                    //     dir = sourceNode.y <= targetNode.y ? -1 : 1;
+                    //     ifHorizontal = false;
+                    //     startingPoint = {
+                    //         x: sourceNode.x,
+                    //         y: sourceNode.y - dir * (sourceNode.height / 2)
+                    //     };
+                    //     endingPoint = {
+                    //         x: targetNode.x,
+                    //         y: targetNode.y + dir * (targetNode.height / 2)
+                    //     };
+                }
                 // generate new points
                 link.points = [startingPoint, endingPoint];
-                var line = this_2.generateLine(link.points);
+                var line = this_2.generateLine(link.points, ifHorizontal);
                 this_2.calcDominantBaseline(link);
                 link.oldLine = link.line;
                 link.line = line;

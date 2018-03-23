@@ -120,7 +120,7 @@ export declare class GraphComponent extends BaseChartComponent implements AfterV
      *
      * @memberOf GraphComponent
      */
-    generateLine(points: any): any;
+    generateLine(points: any, ifHorizontal?: boolean): any;
     /**
      * Zoom was invoked from event
      *

@@ -484,12 +484,11 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
      *
      * @memberOf GraphComponent
      */
-    generateLine(points): any {
+    generateLine(points, ifHorizontal=true): any {
         const sourceNode = points[0];
         const targetNode = points[points.length - 1];
-        const l = shape.linkHorizontal()
-            .x(d => { return d[0]; })
-            .y(d => { return d[1]; });
+        let l = ifHorizontal ? shape.linkHorizontal() : shape.linkVertical();
+        l = l.x(d => { return d[0]; }).y(d => { return d[1]; });
 
         return l({
             source: [sourceNode.x, sourceNode.y],
@@ -625,13 +624,46 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
                 const targetNode = this._nodes.find(n => n.id === link.target);
 
                 // determine new arrow position
-                const dir = sourceNode.x <= targetNode.x ? -1 : 1;
-                const startingPoint = { x: sourceNode.x - dir * (sourceNode.width / 2), y: sourceNode.y };
-                const endingPoint = { x: targetNode.x + dir * (targetNode.width / 2), y: targetNode.y };
+                let dir = sourceNode.x <= targetNode.x ? -1 : 1;
+                let startingPoint = {
+                    x: sourceNode.x - dir * (sourceNode.width / 2),
+                    y: sourceNode.y
+                };
+                let endingPoint = {
+                    x: targetNode.x + dir * (targetNode.width / 2),
+                    y: targetNode.y
+                };
+                let ifHorizontal = true;
+
+                if ((dir === -1 && startingPoint.x >= endingPoint.x) ||
+                    (dir === 1 && startingPoint.x <= endingPoint.x)) {
+                    dir = sourceNode.y <= targetNode.y ? -1 : 1;
+                    ifHorizontal = false;
+                    startingPoint = {
+                        x: sourceNode.x,
+                        y: sourceNode.y - dir * (sourceNode.height / 2)
+                    };
+                    endingPoint = {
+                        x: targetNode.x,
+                        y: targetNode.y + dir * (targetNode.height / 2)
+                    };
+                // } else if (dir === 1 && startingPoint.x <= endingPoint.x) {
+                //     dir = sourceNode.y <= targetNode.y ? -1 : 1;
+                //     ifHorizontal = false;
+                //     startingPoint = {
+                //         x: sourceNode.x,
+                //         y: sourceNode.y - dir * (sourceNode.height / 2)
+                //     };
+                //     endingPoint = {
+                //         x: targetNode.x,
+                //         y: targetNode.y + dir * (targetNode.height / 2)
+                //     };
+                }
+
 
                 // generate new points
                 link.points = [startingPoint, endingPoint];
-                const line = this.generateLine(link.points);
+                const line = this.generateLine(link.points, ifHorizontal);
                 this.calcDominantBaseline(link);
                 link.oldLine = link.line;
                 link.line = line;
