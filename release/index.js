@@ -36684,6 +36684,13 @@ module.exports = Array.isArray || function (arr) {
 
 /***/ }),
 
+/***/ "./node_modules/transformation-matrix/build-umd/transformation-matrix.min.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+!function(t,r){ true?module.exports=r():"function"==typeof define&&define.amd?define([],r):"object"==typeof exports?exports.TransformationMatrix=r():t.TransformationMatrix=r()}("undefined"!=typeof self?self:this,function(){return function(t){function r(e){if(n[e])return n[e].exports;var o=n[e]={i:e,l:!1,exports:{}};return t[e].call(o.exports,o,o.exports,r),o.l=!0,o.exports}var n={};return r.m=t,r.c=n,r.d=function(t,n,e){r.o(t,n)||Object.defineProperty(t,n,{configurable:!1,enumerable:!0,get:e})},r.n=function(t){var n=t&&t.__esModule?function(){return t.default}:function(){return t};return r.d(n,"a",n),n},r.o=function(t,r){return Object.prototype.hasOwnProperty.call(t,r)},r.p="",r(r.s=3)}([function(t,r,n){"use strict";function e(t){return void 0===t}r.a=e},function(t,r,n){"use strict";function e(t){return{a:1,c:0,e:t,b:0,d:1,f:arguments.length>1&&void 0!==arguments[1]?arguments[1]:0}}r.a=e},function(t,r,n){"use strict";function e(t){if(Array.isArray(t)){for(var r=0,n=Array(t.length);r<t.length;r++)n[r]=t[r];return n}return Array.from(t)}function o(t){return Array.isArray(t)?t:Array.from(t)}function a(){for(var t=arguments.length,r=Array(t),n=0;n<t;n++)r[n]=arguments[n];r=Array.isArray(r[0])?r[0]:r;var u=function(t,r){return{a:t.a*r.a+t.c*r.b,c:t.a*r.c+t.c*r.d,e:t.a*r.e+t.c*r.f+t.e,b:t.b*r.a+t.d*r.b,d:t.b*r.c+t.d*r.d,f:t.b*r.e+t.d*r.f+t.f}};switch(r.length){case 0:throw new Error("no matrices provided");case 1:return r[0];case 2:return u(r[0],r[1]);default:var i=r,c=o(i),f=c[0],s=c[1],d=c.slice(2),p=u(f,s);return a.apply(void 0,[p].concat(e(d)))}}r.a=a},function(t,r,n){"use strict";Object.defineProperty(r,"__esModule",{value:!0});var e=n(4);n.d(r,"applyToPoint",function(){return e.a}),n.d(r,"applyToPoints",function(){return e.b});var o=n(5);n.d(r,"fromObject",function(){return o.a});var a=n(6);n.d(r,"fromString",function(){return a.a});var u=n(7);n.d(r,"identity",function(){return u.a});var i=n(8);n.d(r,"inverse",function(){return i.a});var c=n(9);n.d(r,"isAffineMatrix",function(){return c.a});var f=n(10);n.d(r,"rotate",function(){return f.a}),n.d(r,"rotateDEG",function(){return f.b});var s=n(11);n.d(r,"scale",function(){return s.a});var d=n(12);n.d(r,"shear",function(){return d.a});var p=n(13);n.d(r,"toCSS",function(){return p.a}),n.d(r,"toSVG",function(){return p.b}),n.d(r,"toString",function(){return p.c});var l=n(2);n.d(r,"transform",function(){return l.a});var b=n(1);n.d(r,"translate",function(){return b.a})},function(t,r,n){"use strict";function e(t,r){return{x:t.a*r.x+t.c*r.y+t.e,y:t.b*r.x+t.d*r.y+t.f}}function o(t,r){return r.map(function(r){return e(t,r)})}r.a=e,r.b=o},function(t,r,n){"use strict";function e(t){return{a:parseFloat(t.a),b:parseFloat(t.b),c:parseFloat(t.c),d:parseFloat(t.d),e:parseFloat(t.e),f:parseFloat(t.f)}}r.a=e},function(t,r,n){"use strict";function e(t){var r=t.match(o);if(null===r||r.length<7)throw new Error("'"+t+"' is not a matrix");return{a:parseFloat(r[1]),b:parseFloat(r[2]),c:parseFloat(r[3]),d:parseFloat(r[4]),e:parseFloat(r[5]),f:parseFloat(r[6])}}r.a=e;var o=/^matrix\(\s*(-?[0-9]*\.?[0-9]+)\s*,\s*(-?[0-9]*\.?[0-9]+)\s*,\s*(-?[0-9]*\.?[0-9]+)\s*,\s*(-?[0-9]*\.?[0-9]+)\s*,\s*(-?[0-9]*\.?[0-9]+)\s*,\s*(-?[0-9]*\.?[0-9]+)\s*\)$/i},function(t,r,n){"use strict";function e(){return{a:1,c:0,e:0,b:0,d:1,f:0}}r.a=e},function(t,r,n){"use strict";function e(t){var r=t.a,n=t.b,e=t.c,o=t.d,a=t.e,u=t.f,i=r*o-n*e;return{a:o/i,b:n/-i,c:e/-i,d:r/i,e:(o*a-e*u)/-i,f:(n*a-r*u)/i}}r.a=e},function(t,r,n){"use strict";function e(t){var r=function(t){return"number"==typeof t&&!isNaN(t)&&isFinite(t)};return"object"===(void 0===t?"undefined":o(t))&&t.hasOwnProperty("a")&&r(t.a)&&t.hasOwnProperty("b")&&r(t.b)&&t.hasOwnProperty("c")&&r(t.c)&&t.hasOwnProperty("d")&&r(t.d)&&t.hasOwnProperty("e")&&r(t.e)&&t.hasOwnProperty("f")&&r(t.f)}r.a=e;var o="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(t){return typeof t}:function(t){return t&&"function"==typeof Symbol&&t.constructor===Symbol&&t!==Symbol.prototype?"symbol":typeof t}},function(t,r,n){"use strict";function e(t,r,n){var e=c(t),o=f(t),s={a:e,c:-o,e:0,b:o,d:e,f:0};return Object(a.a)(r)||Object(a.a)(n)?s:Object(i.a)([Object(u.a)(r,n),s,Object(u.a)(-r,-n)])}function o(t){var r=arguments.length>1&&void 0!==arguments[1]?arguments[1]:void 0,n=arguments.length>2&&void 0!==arguments[2]?arguments[2]:void 0;return e(t*s/180,r,n)}r.a=e,r.b=o;var a=n(0),u=n(1),i=n(2),c=Math.cos,f=Math.sin,s=Math.PI},function(t,r,n){"use strict";function e(t){var r=arguments.length>1&&void 0!==arguments[1]?arguments[1]:void 0;return Object(o.a)(r)&&(r=t),{a:t,c:0,e:0,b:0,d:r,f:0}}r.a=e;var o=n(0)},function(t,r,n){"use strict";function e(t,r){return{a:1,c:t,e:0,b:r,d:1,f:0}}r.a=e},function(t,r,n){"use strict";function e(t){return a(t)}function o(t){return a(t)}function a(t){return"matrix("+t.a+","+t.b+","+t.c+","+t.d+","+t.e+","+t.f+")"}r.a=e,r.b=o,r.c=a}])});
+
+/***/ }),
+
 /***/ "./node_modules/webpack/buildin/global.js":
 /***/ (function(module, exports) {
 
@@ -38386,6 +38393,10 @@ function throttleable(duration, options) {
 
 
 
+// EXTERNAL MODULE: ./node_modules/transformation-matrix/build-umd/transformation-matrix.min.js
+var transformation_matrix_min = __webpack_require__("./node_modules/transformation-matrix/build-umd/transformation-matrix.min.js");
+var transformation_matrix_min_default = /*#__PURE__*/__webpack_require__.n(transformation_matrix_min);
+
 // CONCATENATED MODULE: ./src/graph/graph.component.ts
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -38415,6 +38426,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 
 
 
+
 var graph_component_GraphComponent = (function (_super) {
     __extends(GraphComponent, _super);
     function GraphComponent() {
@@ -38424,14 +38436,12 @@ var graph_component_GraphComponent = (function (_super) {
         _this.activeEntries = [];
         _this.orientation = 'LR';
         _this.draggingEnabled = true;
-        _this.panOffsetX = 0;
-        _this.panOffsetY = 0;
         _this.panningEnabled = true;
-        _this.zoomLevel = 1;
         _this.zoomSpeed = 0.1;
         _this.minZoomLevel = 0.1;
         _this.maxZoomLevel = 4.0;
         _this.autoZoom = false;
+        _this.panOnZoom = true;
         _this.activate = new core_["EventEmitter"]();
         _this.deactivate = new core_["EventEmitter"]();
         _this.margin = [0, 0, 0, 0];
@@ -38441,9 +38451,58 @@ var graph_component_GraphComponent = (function (_super) {
         _this.initialized = false;
         _this.graphDims = { width: 0, height: 0 };
         _this._oldLinks = [];
+        _this.transformationMatrix = Object(transformation_matrix_min["identity"])();
         _this.groupResultsBy = function (node) { return node.label; };
         return _this;
     }
+    Object.defineProperty(GraphComponent.prototype, "zoomLevel", {
+        /**
+         * Get the current zoom level
+         */
+        get: function () {
+            return this.transformationMatrix.a;
+        },
+        /**
+         * Set the current zoom level
+         */
+        set: function (level) {
+            this.zoomTo(Number(level));
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(GraphComponent.prototype, "panOffsetX", {
+        /**
+         * Get the current `x` position of the graph
+         */
+        get: function () {
+            return this.transformationMatrix.e;
+        },
+        /**
+         * Set the current `x` position of the graph
+         */
+        set: function (x) {
+            this.panTo(Number(x), null);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(GraphComponent.prototype, "panOffsetY", {
+        /**
+         * Get the current `y` position of the graph
+         */
+        get: function () {
+            return this.transformationMatrix.f;
+        },
+        /**
+         * Set the current `y` position of the graph
+         */
+        set: function (y) {
+            this.panTo(null, Number(y));
+        },
+        enumerable: true,
+        configurable: true
+    });
     /**
      * Angular lifecycle event
      *
@@ -38710,8 +38769,15 @@ var graph_component_GraphComponent = (function (_super) {
      * @memberOf GraphComponent
      */
     GraphComponent.prototype.generateLine = function (points) {
-        var lineFunction = external__d3_shape_["line"]().x(function (d) { return d.x; }).y(function (d) { return d.y; }).curve(this.curve);
-        return lineFunction(points);
+        var sourceNode = points[0];
+        var targetNode = points[points.length - 1];
+        var l = external__d3_shape_["linkHorizontal"]()
+            .x(function (d) { return d[0]; })
+            .y(function (d) { return d[1]; });
+        return l({
+            source: [sourceNode.x, sourceNode.y],
+            target: [targetNode.x, targetNode.y]
+        });
     };
     /**
      * Zoom was invoked from event
@@ -38722,14 +38788,70 @@ var graph_component_GraphComponent = (function (_super) {
      * @memberOf GraphComponent
      */
     GraphComponent.prototype.onZoom = function ($event, direction) {
-        if (direction === 'in') {
-            this.zoomLevel += this.zoomSpeed;
+        var zoomFactor = 1 + (direction === 'in' ? this.zoomSpeed : -this.zoomSpeed);
+        // Check that zooming wouldn't put us out of bounds
+        var newZoomLevel = this.zoomLevel * zoomFactor;
+        if (newZoomLevel <= this.minZoomLevel || newZoomLevel >= this.maxZoomLevel) {
+            return;
+        }
+        if (this.panOnZoom === true && $event) {
+            // Absolute mouse X/Y on the screen
+            var mouseX = $event.clientX;
+            var mouseY = $event.clientY;
+            // Transform the mouse X/Y into a SVG X/Y
+            var svg = this.chart.nativeElement.querySelector('svg');
+            var svgGroup = svg.querySelector('g.chart');
+            var point = svg.createSVGPoint();
+            point.x = mouseX;
+            point.y = mouseY;
+            var svgPoint = point.matrixTransform(svgGroup.getScreenCTM().inverse());
+            // Panzoom
+            this.pan(svgPoint.x, svgPoint.y);
+            this.zoom(zoomFactor);
+            this.pan(-svgPoint.x, -svgPoint.y);
         }
         else {
-            this.zoomLevel -= this.zoomSpeed;
+            this.zoom(zoomFactor);
         }
-        this.zoomLevel = Math.max(this.zoomLevel, this.minZoomLevel);
-        this.zoomLevel = Math.min(this.zoomLevel, this.maxZoomLevel);
+    };
+    /**
+     * Pan by x/y
+     *
+     * @param x
+     * @param y
+     */
+    GraphComponent.prototype.pan = function (x, y) {
+        this.transformationMatrix = Object(transformation_matrix_min["transform"])(this.transformationMatrix, Object(transformation_matrix_min["translate"])(x, y));
+        this.updateTransform();
+    };
+    /**
+     * Pan to a fixed x/y
+     *
+     * @param x
+     * @param y
+     */
+    GraphComponent.prototype.panTo = function (x, y) {
+        this.transformationMatrix.e = x === null || x === undefined || isNaN(x) ? this.transformationMatrix.e : Number(x);
+        this.transformationMatrix.f = y === null || y === undefined || isNaN(y) ? this.transformationMatrix.f : Number(y);
+        this.updateTransform();
+    };
+    /**
+     * Zoom by a factor
+     *
+     * @param factor Zoom multiplicative factor (1.1 for zooming in 10%, for instance)
+     */
+    GraphComponent.prototype.zoom = function (factor) {
+        this.transformationMatrix = Object(transformation_matrix_min["transform"])(this.transformationMatrix, Object(transformation_matrix_min["scale"])(factor, factor));
+        this.updateTransform();
+    };
+    /**
+     * Zoom to a fixed level
+     *
+     * @param level
+     */
+    GraphComponent.prototype.zoomTo = function (level) {
+        this.transformationMatrix.a = isNaN(level) ? this.transformationMatrix.a : Number(level);
+        this.transformationMatrix.d = isNaN(level) ? this.transformationMatrix.d : Number(level);
         this.updateTransform();
     };
     /**
@@ -38740,9 +38862,7 @@ var graph_component_GraphComponent = (function (_super) {
      * @memberOf GraphComponent
      */
     GraphComponent.prototype.onPan = function (event) {
-        this.panOffsetX += event.movementX;
-        this.panOffsetY += event.movementY;
-        this.updateTransform();
+        this.pan(event.movementX, event.movementY);
     };
     /**
      * Drag was invoked from an event
@@ -38765,10 +38885,10 @@ var graph_component_GraphComponent = (function (_super) {
                 var targetNode = this_2._nodes.find(function (n) { return n.id === link.target; });
                 // determine new arrow position
                 var dir = sourceNode.y <= targetNode.y ? -1 : 1;
-                var startingPoint = { x: sourceNode.x, y: (sourceNode.y - dir * (sourceNode.height / 2)) };
-                var endingPoint = { x: targetNode.x, y: (targetNode.y + dir * (targetNode.height / 2)) };
+                // const startingPoint = { x: sourceNode.x, y: (sourceNode.y - dir * (sourceNode.height / 2)) };
+                // const endingPoint = { x: targetNode.x, y: (targetNode.y + dir * (targetNode.height / 2)) };
                 // generate new points
-                link.points = [startingPoint, endingPoint];
+                link.points = [sourceNode, targetNode];
                 var line = this_2.generateLine(link.points);
                 this_2.calcDominantBaseline(link);
                 link.oldLine = link.line;
@@ -38789,7 +38909,7 @@ var graph_component_GraphComponent = (function (_super) {
      * @memberOf GraphComponent
      */
     GraphComponent.prototype.updateTransform = function () {
-        this.transform = "\n      translate(" + this.panOffsetX + ", " + this.panOffsetY + ") scale(" + this.zoomLevel + ")\n    ";
+        this.transform = Object(transformation_matrix_min["toSVG"])(this.transformationMatrix);
     };
     /**
      * Node was clicked
@@ -38981,20 +39101,8 @@ var graph_component_GraphComponent = (function (_super) {
     ], GraphComponent.prototype, "nodeMaxWidth", void 0);
     __decorate([
         Object(core_["Input"])(),
-        __metadata("design:type", Number)
-    ], GraphComponent.prototype, "panOffsetX", void 0);
-    __decorate([
-        Object(core_["Input"])(),
-        __metadata("design:type", Number)
-    ], GraphComponent.prototype, "panOffsetY", void 0);
-    __decorate([
-        Object(core_["Input"])(),
         __metadata("design:type", Boolean)
     ], GraphComponent.prototype, "panningEnabled", void 0);
-    __decorate([
-        Object(core_["Input"])(),
-        __metadata("design:type", Number)
-    ], GraphComponent.prototype, "zoomLevel", void 0);
     __decorate([
         Object(core_["Input"])(),
         __metadata("design:type", Number)
@@ -39011,6 +39119,10 @@ var graph_component_GraphComponent = (function (_super) {
         Object(core_["Input"])(),
         __metadata("design:type", Boolean)
     ], GraphComponent.prototype, "autoZoom", void 0);
+    __decorate([
+        Object(core_["Input"])(),
+        __metadata("design:type", Boolean)
+    ], GraphComponent.prototype, "panOnZoom", void 0);
     __decorate([
         Object(core_["Output"])(),
         __metadata("design:type", core_["EventEmitter"])
@@ -39047,6 +39159,21 @@ var graph_component_GraphComponent = (function (_super) {
         Object(core_["Input"])(),
         __metadata("design:type", Function)
     ], GraphComponent.prototype, "groupResultsBy", void 0);
+    __decorate([
+        Object(core_["Input"])('zoomLevel'),
+        __metadata("design:type", Object),
+        __metadata("design:paramtypes", [Object])
+    ], GraphComponent.prototype, "zoomLevel", null);
+    __decorate([
+        Object(core_["Input"])('panOffsetX'),
+        __metadata("design:type", Object),
+        __metadata("design:paramtypes", [Object])
+    ], GraphComponent.prototype, "panOffsetX", null);
+    __decorate([
+        Object(core_["Input"])('panOffsetY'),
+        __metadata("design:type", Object),
+        __metadata("design:paramtypes", [Object])
+    ], GraphComponent.prototype, "panOffsetY", null);
     __decorate([
         Object(core_["HostListener"])('document:mousemove', ['$event']),
         __metadata("design:type", Function),
