@@ -38709,6 +38709,9 @@ var graph_component_GraphComponent = (function (_super) {
                 link.points, link.hor = _this._connectNodes(sourceNode, targetNode);
                 return link;
             });
+            this._nodes = this.nodes.map(function (n) {
+                return Object.assign({}, n);
+            });
             for (var _i = 0, _a = this._nodes; _i < _a.length; _i++) {
                 var node = _a[_i];
                 node.width = 20;

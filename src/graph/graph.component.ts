@@ -420,6 +420,9 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
                 link.points, link.hor = this._connectNodes(sourceNode, targetNode);
                 return link;
             });
+            this._nodes = this.nodes.map(n => {
+                return Object.assign({}, n);
+            });
 
             for (const node of this._nodes) {
                 node.width = 20;
