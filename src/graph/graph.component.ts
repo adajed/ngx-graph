@@ -107,7 +107,6 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
     @Input() links: any[] = [];
     @Input() activeEntries: any[] = [];
     @Input() orientation: string = 'LR';
-    @Input() curve: any;
     @Input() draggingEnabled: boolean = true;
 
     @Input() nodeHeight: number;
@@ -154,6 +153,8 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
     _links: any[];
     _oldLinks: any[] = [];
     transformationMatrix = identity();
+
+    private _use_dagre_layout = true;
 
     @Input() groupResultsBy: (node: any) => string = node => node.label;
 
@@ -294,7 +295,9 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
         }
 
         // Dagre to recalc the layout
-        dagre.layout(this.graph);
+        if (this._use_dagre_layout) {
+            dagre.layout(this.graph);
+        }
 
         // Tranposes view options to the node
         const index = {};
@@ -320,7 +323,7 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
             oldLink.oldLine = oldLink.line;
 
             const points = l.points;
-            const line = this.generateLine(points);
+            const line = this.generateLine(l);
 
             const newLink = Object.assign({}, oldLink);
             newLink.line = line;
@@ -405,6 +408,22 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
      * @memberOf GraphComponent
      */
     createGraph(): void {
+        const pos_given = !this.nodes.some(
+            node => node.x === undefined || node.y === undefined
+        );
+        if (pos_given) {
+            this._use_dagre_layout = false;
+
+            this._links = this._links.map( link => {
+                const sourceNode = this._nodes.find(n => n.id === link.source);
+                const targetNode = this._nodes.find(n => n.id === link.target);
+                link.points, link.hor = this._connectNodes(sourceNode, targetNode);
+                return link;
+            });
+
+            requestAnimationFrame(() => this.draw());
+            return;
+        }
         this.graph = new dagre.graphlib.Graph();
         this.graph.setGraph({
             rankdir: this.orientation,
@@ -469,7 +488,7 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
             link.dominantBaseline = 'text-before-edge';
 
             // reverse text path for when its flipped upside down
-            link.textPath = this.generateLine([...link.points].reverse());
+            link.textPath = this.generateLine(link);
         } else {
             link.dominantBaseline = 'text-after-edge';
             link.textPath = link.line;
@@ -484,10 +503,10 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
      *
      * @memberOf GraphComponent
      */
-    generateLine(points, ifHorizontal=true): any {
-        const sourceNode = points[0];
-        const targetNode = points[points.length - 1];
-        let l = ifHorizontal ? shape.linkHorizontal() : shape.linkVertical();
+    generateLine(link): any {
+        const sourceNode = link.points[0];
+        const targetNode = link.points[link.points.length - 1];
+        let l = link.hor ? shape.linkHorizontal() : shape.linkVertical();
         l = l.x(d => { return d[0]; }).y(d => { return d[1]; });
 
         return l({
@@ -601,6 +620,35 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
         this.pan(event.movementX, event.movementY);
     }
 
+    private _connectNodes(source, target) {
+        // determine new arrow position
+        let dir = source.x <= target.x ? -1 : 1;
+        let startingPoint = {
+            x: source.x - dir * (source.width / 2),
+            y: source.y
+        };
+        let endingPoint = {
+            x: target.x + dir * (target.width / 2),
+            y: target.y
+        };
+        let ifHorizontal = true;
+
+        if ((dir === -1 && startingPoint.x >= endingPoint.x) ||
+            (dir === 1 && startingPoint.x <= endingPoint.x)) {
+            dir = source.y <= target.y ? -1 : 1;
+            ifHorizontal = false;
+            startingPoint = {
+                x: source.x,
+                y: source.y - dir * (source.height / 2)
+            };
+            endingPoint = {
+                x: target.x,
+                y: target.y + dir * (target.height / 2)
+            };
+        }
+        return [startingPoint, endingPoint], ifHorizontal;
+    }
+
     /**
      * Drag was invoked from an event
      *
@@ -623,47 +671,9 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
                 const sourceNode = this._nodes.find(n => n.id === link.source);
                 const targetNode = this._nodes.find(n => n.id === link.target);
 
-                // determine new arrow position
-                let dir = sourceNode.x <= targetNode.x ? -1 : 1;
-                let startingPoint = {
-                    x: sourceNode.x - dir * (sourceNode.width / 2),
-                    y: sourceNode.y
-                };
-                let endingPoint = {
-                    x: targetNode.x + dir * (targetNode.width / 2),
-                    y: targetNode.y
-                };
-                let ifHorizontal = true;
-
-                if ((dir === -1 && startingPoint.x >= endingPoint.x) ||
-                    (dir === 1 && startingPoint.x <= endingPoint.x)) {
-                    dir = sourceNode.y <= targetNode.y ? -1 : 1;
-                    ifHorizontal = false;
-                    startingPoint = {
-                        x: sourceNode.x,
-                        y: sourceNode.y - dir * (sourceNode.height / 2)
-                    };
-                    endingPoint = {
-                        x: targetNode.x,
-                        y: targetNode.y + dir * (targetNode.height / 2)
-                    };
-                // } else if (dir === 1 && startingPoint.x <= endingPoint.x) {
-                //     dir = sourceNode.y <= targetNode.y ? -1 : 1;
-                //     ifHorizontal = false;
-                //     startingPoint = {
-                //         x: sourceNode.x,
-                //         y: sourceNode.y - dir * (sourceNode.height / 2)
-                //     };
-                //     endingPoint = {
-                //         x: targetNode.x,
-                //         y: targetNode.y + dir * (targetNode.height / 2)
-                //     };
-                }
-
-
                 // generate new points
-                link.points = [startingPoint, endingPoint];
-                const line = this.generateLine(link.points, ifHorizontal);
+                link.points, link.hor = this._connectNodes(sourceNode, targetNode);
+                const line = this.generateLine(link);
                 this.calcDominantBaseline(link);
                 link.oldLine = link.line;
                 link.line = line;

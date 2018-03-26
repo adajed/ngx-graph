@@ -43,6 +43,7 @@ var GraphComponent = (function (_super) {
         _this.graphDims = { width: 0, height: 0 };
         _this._oldLinks = [];
         _this.transformationMatrix = identity();
+        _this._use_dagre_layout = true;
         _this.groupResultsBy = function (node) { return node.label; };
         return _this;
     }
@@ -233,7 +234,9 @@ var GraphComponent = (function (_super) {
             });
         }
         // Dagre to recalc the layout
-        dagre.layout(this.graph);
+        if (this._use_dagre_layout) {
+            dagre.layout(this.graph);
+        }
         // Tranposes view options to the node
         var index = {};
         this._nodes.map(function (n) {
@@ -254,7 +257,7 @@ var GraphComponent = (function (_super) {
             }
             oldLink.oldLine = oldLink.line;
             var points = l.points;
-            var line = this_1.generateLine(points);
+            var line = this_1.generateLine(l);
             var newLink = Object.assign({}, oldLink);
             newLink.line = line;
             newLink.points = points;
@@ -359,6 +362,18 @@ var GraphComponent = (function (_super) {
          */
     function () {
         var _this = this;
+        var pos_given = !this.nodes.some(function (node) { return node.x === undefined || node.y === undefined; });
+        if (pos_given) {
+            this._use_dagre_layout = false;
+            this._links = this._links.map(function (link) {
+                var sourceNode = _this._nodes.find(function (n) { return n.id === link.source; });
+                var targetNode = _this._nodes.find(function (n) { return n.id === link.target; });
+                link.points, link.hor = _this._connectNodes(sourceNode, targetNode);
+                return link;
+            });
+            requestAnimationFrame(function () { return _this.draw(); });
+            return;
+        }
         this.graph = new dagre.graphlib.Graph();
         this.graph.setGraph({
             rankdir: this.orientation,
@@ -429,7 +444,7 @@ var GraphComponent = (function (_super) {
         if (lastPoint.x < firstPoint.x) {
             link.dominantBaseline = 'text-before-edge';
             // reverse text path for when its flipped upside down
-            link.textPath = this.generateLine(link.points.slice().reverse());
+            link.textPath = this.generateLine(link);
         }
         else {
             link.dominantBaseline = 'text-after-edge';
@@ -460,11 +475,10 @@ var GraphComponent = (function (_super) {
          *
          * @memberOf GraphComponent
          */
-    function (points, ifHorizontal) {
-        if (ifHorizontal === void 0) { ifHorizontal = true; }
-        var sourceNode = points[0];
-        var targetNode = points[points.length - 1];
-        var l = ifHorizontal ? shape.linkHorizontal() : shape.linkVertical();
+    function (link) {
+        var sourceNode = link.points[0];
+        var targetNode = link.points[link.points.length - 1];
+        var l = link.hor ? shape.linkHorizontal() : shape.linkVertical();
         l = l.x(function (d) { return d[0]; }).y(function (d) { return d[1]; });
         return l({
             source: [sourceNode.x, sourceNode.y],
@@ -630,6 +644,33 @@ var GraphComponent = (function (_super) {
     function (event) {
         this.pan(event.movementX, event.movementY);
     };
+    GraphComponent.prototype._connectNodes = function (source, target) {
+        // determine new arrow position
+        var dir = source.x <= target.x ? -1 : 1;
+        var startingPoint = {
+            x: source.x - dir * (source.width / 2),
+            y: source.y
+        };
+        var endingPoint = {
+            x: target.x + dir * (target.width / 2),
+            y: target.y
+        };
+        var ifHorizontal = true;
+        if ((dir === -1 && startingPoint.x >= endingPoint.x) ||
+            (dir === 1 && startingPoint.x <= endingPoint.x)) {
+            dir = source.y <= target.y ? -1 : 1;
+            ifHorizontal = false;
+            startingPoint = {
+                x: source.x,
+                y: source.y - dir * (source.height / 2)
+            };
+            endingPoint = {
+                x: target.x,
+                y: target.y + dir * (target.height / 2)
+            };
+        }
+        return [startingPoint, endingPoint], ifHorizontal;
+    };
     /**
      * Drag was invoked from an event
      *
@@ -663,44 +704,9 @@ var GraphComponent = (function (_super) {
             if (link.target === node.id || link.source === node.id) {
                 var sourceNode = this_2._nodes.find(function (n) { return n.id === link.source; });
                 var targetNode = this_2._nodes.find(function (n) { return n.id === link.target; });
-                // determine new arrow position
-                var dir = sourceNode.x <= targetNode.x ? -1 : 1;
-                var startingPoint = {
-                    x: sourceNode.x - dir * (sourceNode.width / 2),
-                    y: sourceNode.y
-                };
-                var endingPoint = {
-                    x: targetNode.x + dir * (targetNode.width / 2),
-                    y: targetNode.y
-                };
-                var ifHorizontal = true;
-                if ((dir === -1 && startingPoint.x >= endingPoint.x) ||
-                    (dir === 1 && startingPoint.x <= endingPoint.x)) {
-                    dir = sourceNode.y <= targetNode.y ? -1 : 1;
-                    ifHorizontal = false;
-                    startingPoint = {
-                        x: sourceNode.x,
-                        y: sourceNode.y - dir * (sourceNode.height / 2)
-                    };
-                    endingPoint = {
-                        x: targetNode.x,
-                        y: targetNode.y + dir * (targetNode.height / 2)
-                    };
-                    // } else if (dir === 1 && startingPoint.x <= endingPoint.x) {
-                    //     dir = sourceNode.y <= targetNode.y ? -1 : 1;
-                    //     ifHorizontal = false;
-                    //     startingPoint = {
-                    //         x: sourceNode.x,
-                    //         y: sourceNode.y - dir * (sourceNode.height / 2)
-                    //     };
-                    //     endingPoint = {
-                    //         x: targetNode.x,
-                    //         y: targetNode.y + dir * (targetNode.height / 2)
-                    //     };
-                }
                 // generate new points
-                link.points = [startingPoint, endingPoint];
-                var line = this_2.generateLine(link.points, ifHorizontal);
+                link.points, link.hor = this_2._connectNodes(sourceNode, targetNode);
+                var line = this_2.generateLine(link);
                 this_2.calcDominantBaseline(link);
                 link.oldLine = link.line;
                 link.line = line;
@@ -1046,7 +1052,6 @@ var GraphComponent = (function (_super) {
         "links": [{ type: Input },],
         "activeEntries": [{ type: Input },],
         "orientation": [{ type: Input },],
-        "curve": [{ type: Input },],
         "draggingEnabled": [{ type: Input },],
         "nodeHeight": [{ type: Input },],
         "nodeMaxHeight": [{ type: Input },],

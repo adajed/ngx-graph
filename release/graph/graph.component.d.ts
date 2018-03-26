@@ -7,7 +7,6 @@ export declare class GraphComponent extends BaseChartComponent implements AfterV
     links: any[];
     activeEntries: any[];
     orientation: string;
-    curve: any;
     draggingEnabled: boolean;
     nodeHeight: number;
     nodeMaxHeight: number;
@@ -46,6 +45,7 @@ export declare class GraphComponent extends BaseChartComponent implements AfterV
     _links: any[];
     _oldLinks: any[];
     transformationMatrix: Matrix;
+    private _use_dagre_layout;
     groupResultsBy: (node: any) => string;
     /**
      * Get the current zoom level
@@ -120,7 +120,7 @@ export declare class GraphComponent extends BaseChartComponent implements AfterV
      *
      * @memberOf GraphComponent
      */
-    generateLine(points: any, ifHorizontal?: boolean): any;
+    generateLine(link: any): any;
     /**
      * Zoom was invoked from event
      *
@@ -164,6 +164,7 @@ export declare class GraphComponent extends BaseChartComponent implements AfterV
      * @memberOf GraphComponent
      */
     onPan(event: any): void;
+    private _connectNodes(source, target);
     /**
      * Drag was invoked from an event
      *
