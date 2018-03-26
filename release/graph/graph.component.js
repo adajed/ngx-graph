@@ -365,12 +365,24 @@ var GraphComponent = (function (_super) {
         var pos_given = !this.nodes.some(function (node) { return node.x === undefined || node.y === undefined; });
         if (pos_given) {
             this._use_dagre_layout = false;
-            this._links = this._links.map(function (link) {
+            this._links = this.links.map(function (link) {
                 var sourceNode = _this._nodes.find(function (n) { return n.id === link.source; });
                 var targetNode = _this._nodes.find(function (n) { return n.id === link.target; });
                 link.points, link.hor = _this._connectNodes(sourceNode, targetNode);
                 return link;
             });
+            for (var _i = 0, _a = this._nodes; _i < _a.length; _i++) {
+                var node = _a[_i];
+                node.width = 20;
+                node.height = 30;
+                // update dagre
+                this.graph.setNode(node.id, node);
+                // set view options
+                node.options = {
+                    color: this.colors.getColor(this.groupResultsBy(node)),
+                    transform: "translate( " + ((node.x - node.width / 2) || 0) + ", " + ((node.y - node.height / 2) || 0) + ")"
+                };
+            }
             requestAnimationFrame(function () { return _this.draw(); });
             return;
         }
@@ -397,8 +409,8 @@ var GraphComponent = (function (_super) {
                 newLink.id = id();
             return newLink;
         });
-        for (var _i = 0, _a = this._nodes; _i < _a.length; _i++) {
-            var node = _a[_i];
+        for (var _b = 0, _c = this._nodes; _b < _c.length; _b++) {
+            var node = _c[_b];
             node.width = 20;
             node.height = 30;
             // update dagre
@@ -410,8 +422,8 @@ var GraphComponent = (function (_super) {
             };
         }
         // update dagre
-        for (var _b = 0, _c = this._links; _b < _c.length; _b++) {
-            var edge = _c[_b];
+        for (var _d = 0, _e = this._links; _d < _e.length; _d++) {
+            var edge = _e[_d];
             this.graph.setEdge(edge.source, edge.target);
         }
         requestAnimationFrame(function () { return _this.draw(); });

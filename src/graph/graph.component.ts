@@ -414,12 +414,26 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
         if (pos_given) {
             this._use_dagre_layout = false;
 
-            this._links = this._links.map( link => {
+            this._links = this.links.map( link => {
                 const sourceNode = this._nodes.find(n => n.id === link.source);
                 const targetNode = this._nodes.find(n => n.id === link.target);
                 link.points, link.hor = this._connectNodes(sourceNode, targetNode);
                 return link;
             });
+
+            for (const node of this._nodes) {
+                node.width = 20;
+                node.height = 30;
+
+                // update dagre
+                this.graph.setNode(node.id, node);
+
+                // set view options
+                node.options = {
+                    color: this.colors.getColor(this.groupResultsBy(node)),
+                    transform: `translate( ${(node.x - node.width / 2) || 0}, ${(node.y - node.height / 2) || 0})`
+                };
+            }
 
             requestAnimationFrame(() => this.draw());
             return;
