@@ -235,7 +235,11 @@ var GraphComponent = (function (_super) {
         }
         // Dagre to recalc the layout
         if (this._use_dagre_layout) {
+            console.log('using dagre');
             dagre.layout(this.graph);
+        }
+        else {
+            console.log('not using dagre');
         }
         // Tranposes view options to the node
         var index = {};
@@ -715,6 +719,7 @@ var GraphComponent = (function (_super) {
         var x = (node.x - (node.width / 2));
         var y = (node.y - (node.height / 2));
         node.options.transform = "translate(" + x + ", " + y + ")";
+        console.log(node.x + ', ' + node.y);
         var _loop_2 = function (link) {
             if (link.target === node.id || link.source === node.id) {
                 var sourceNode = this_2._nodes.find(function (n) { return n.id === link.source; });

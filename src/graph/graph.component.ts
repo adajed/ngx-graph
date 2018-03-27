@@ -296,7 +296,10 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
 
         // Dagre to recalc the layout
         if (this._use_dagre_layout) {
+            console.log('using dagre');
             dagre.layout(this.graph);
+        } else {
+            console.log('not using dagre');
         }
 
         // Tranposes view options to the node
@@ -683,6 +686,7 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
         const y = (node.y - (node.height / 2));
         node.options.transform = `translate(${x}, ${y})`;
 
+        console.log(node.x + ', ' + node.y);
         for (const link of this._links) {
             if (link.target === node.id || link.source === node.id) {
                 const sourceNode = this._nodes.find(n => n.id === link.source);
