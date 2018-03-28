@@ -13,10 +13,9 @@
         [legend]="showLegend"
         [links]="hierarchialGraph.links"
         (legendLabelClick)="onLegendLabelClick($event)"
-        [nodes]="hierarchialGraph.nodes"
+        [(nodes)]="hierarchialGraph.nodes"
         [scheme]="colorScheme"
         [orientation]="orientation"
-        [curve]="curve"
         (select)="select($event)">
 
         <ng-template #defsTemplate>

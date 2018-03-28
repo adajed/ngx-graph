@@ -164,7 +164,13 @@ export declare class GraphComponent extends BaseChartComponent implements AfterV
      * @memberOf GraphComponent
      */
     onPan(event: any): void;
-    private _connectNodes(source, target);
+    _connectNodes(source: any, target: any): {
+        points: {
+            x: any;
+            y: any;
+        }[];
+        hor: boolean;
+    };
     /**
      * Drag was invoked from an event
      *

@@ -235,11 +235,11 @@ var GraphComponent = (function (_super) {
         }
         // Dagre to recalc the layout
         if (this._use_dagre_layout) {
-            console.log('using dagre');
+            // console.log('using dagre');
             dagre.layout(this.graph);
         }
         else {
-            console.log('not using dagre');
+            // console.log('not using dagre');
         }
         // Tranposes view options to the node
         var index = {};
@@ -251,44 +251,60 @@ var GraphComponent = (function (_super) {
             };
         });
         // Update the labels to the new positions
-        var newLinks = [];
-        var _loop_1 = function (k) {
-            var l = this_1.graph._edgeLabels[k];
-            var normKey = k.replace(/[^\w]*/g, '');
-            var oldLink = this_1._oldLinks.find(function (ol) { return "" + ol.source + ol.target === normKey; });
-            if (!oldLink) {
-                oldLink = this_1._links.find(function (nl) { return "" + nl.source + nl.target === normKey; });
+        if (this._use_dagre_layout) {
+            var newLinks = [];
+            var _loop_1 = function (k) {
+                var l = this_1.graph._edgeLabels[k];
+                var normKey = k.replace(/[^\w]*/g, '');
+                var oldLink = this_1._oldLinks.find(function (ol) { return "" + ol.source + ol.target === normKey; });
+                if (!oldLink) {
+                    oldLink = this_1._links.find(function (nl) { return "" + nl.source + nl.target === normKey; });
+                }
+                oldLink.oldLine = oldLink.line;
+                var points = l.points;
+                var line = this_1.generateLine(l);
+                var newLink = Object.assign({}, oldLink);
+                newLink.line = line;
+                newLink.points = points;
+                var textPos = points[Math.floor(points.length / 2)];
+                if (textPos) {
+                    newLink.textTransform = "translate(" + ((textPos.x) || 0) + "," + ((textPos.y) || 0) + ")";
+                }
+                newLink.textAngle = 0;
+                if (!newLink.oldLine) {
+                    newLink.oldLine = newLink.line;
+                }
+                this_1.calcDominantBaseline(newLink);
+                newLinks.push(newLink);
+            };
+            var this_1 = this;
+            for (var k in this.graph._edgeLabels) {
+                _loop_1(k);
             }
-            oldLink.oldLine = oldLink.line;
-            var points = l.points;
-            var line = this_1.generateLine(l);
-            var newLink = Object.assign({}, oldLink);
-            newLink.line = line;
-            newLink.points = points;
-            var textPos = points[Math.floor(points.length / 2)];
-            if (textPos) {
-                newLink.textTransform = "translate(" + ((textPos.x) || 0) + "," + ((textPos.y) || 0) + ")";
-            }
-            newLink.textAngle = 0;
-            if (!newLink.oldLine) {
-                newLink.oldLine = newLink.line;
-            }
-            this_1.calcDominantBaseline(newLink);
-            newLinks.push(newLink);
-        };
-        var this_1 = this;
-        for (var k in this.graph._edgeLabels) {
-            _loop_1(k);
+            this._links = newLinks;
+            // console.log(this._links);
         }
-        this._links = newLinks;
-        // Map the old links for animations
-        if (this._links) {
-            this._oldLinks = this._links.map(function (l) {
-                var newL = Object.assign({}, l);
-                newL.oldLine = l.line;
-                return newL;
+        else {
+            this._links = this._links.map(function (link) {
+                var sourceNode = _this._nodes.find(function (n) { return n.id === link.source; });
+                var targetNode = _this._nodes.find(function (n) { return n.id === link.target; });
+                var d = _this._connectNodes(sourceNode, targetNode);
+                // console.log(d.points);
+                link.points = d.points;
+                link.hor = d.hor;
+                link.line = _this.generateLine(link);
+                return link;
             });
+            // console.log(this._links);
         }
+        // Map the old links for animations
+        // if (this._links) {
+        //     this._oldLinks = this._links.map(l => {
+        //         const newL = Object.assign({}, l);
+        //         newL.oldLine = l.line;
+        //         return newL;
+        //     });
+        // }
         // Calculate the height/width total
         this.graphDims.width = Math.max.apply(Math, this._nodes.map(function (n) { return n.x + n.width; }));
         this.graphDims.height = Math.max.apply(Math, this._nodes.map(function (n) { return n.y + n.height; }));
@@ -301,7 +317,7 @@ var GraphComponent = (function (_super) {
                 this.updateTransform();
             }
         }
-        requestAnimationFrame(function () { return _this.redrawLines(); });
+        requestAnimationFrame(function () { return _this.redrawLines(false); });
         this.cd.markForCheck();
     };
     /**
@@ -368,22 +384,24 @@ var GraphComponent = (function (_super) {
         var _this = this;
         var pos_given = !this.nodes.some(function (node) { return node.x === undefined || node.y === undefined; });
         if (pos_given) {
+            // console.log('position given!');
             this._use_dagre_layout = false;
-            this._links = this.links.map(function (link) {
-                var sourceNode = _this._nodes.find(function (n) { return n.id === link.source; });
-                var targetNode = _this._nodes.find(function (n) { return n.id === link.target; });
-                link.points, link.hor = _this._connectNodes(sourceNode, targetNode);
-                return link;
+            this._nodes = this.nodes;
+            // this._nodes = this.nodes.map(n => {
+            //     return Object.assign({}, n);
+            // });
+            this._links = this.links.map(function (l) {
+                var newLink = Object.assign({}, l);
+                if (!newLink.id)
+                    newLink.id = id();
+                return newLink;
             });
-            this._nodes = this.nodes.map(function (n) {
-                return Object.assign({}, n);
-            });
+            // console.log(this._links);
+            // this._links = this.links;
             for (var _i = 0, _a = this._nodes; _i < _a.length; _i++) {
                 var node = _a[_i];
                 node.width = 20;
                 node.height = 30;
-                // update dagre
-                this.graph.setNode(node.id, node);
                 // set view options
                 node.options = {
                     color: this.colors.getColor(this.groupResultsBy(node)),
@@ -407,9 +425,10 @@ var GraphComponent = (function (_super) {
         this.graph.setDefaultEdgeLabel(function () {
             return {};
         });
-        this._nodes = this.nodes.map(function (n) {
-            return Object.assign({}, n);
-        });
+        // this._nodes = this.nodes.map(n => {
+        //     return Object.assign({}, n);
+        // });
+        this._nodes = this.nodes;
         this._links = this.links.map(function (l) {
             var newLink = Object.assign({}, l);
             if (!newLink.id)
@@ -688,7 +707,10 @@ var GraphComponent = (function (_super) {
                 y: target.y + dir * (target.height / 2)
             };
         }
-        return [startingPoint, endingPoint], ifHorizontal;
+        return {
+            points: [startingPoint, endingPoint],
+            hor: ifHorizontal
+        };
     };
     /**
      * Drag was invoked from an event
@@ -719,13 +741,14 @@ var GraphComponent = (function (_super) {
         var x = (node.x - (node.width / 2));
         var y = (node.y - (node.height / 2));
         node.options.transform = "translate(" + x + ", " + y + ")";
-        console.log(node.x + ', ' + node.y);
         var _loop_2 = function (link) {
             if (link.target === node.id || link.source === node.id) {
                 var sourceNode = this_2._nodes.find(function (n) { return n.id === link.source; });
                 var targetNode = this_2._nodes.find(function (n) { return n.id === link.target; });
                 // generate new points
-                link.points, link.hor = this_2._connectNodes(sourceNode, targetNode);
+                var d = this_2._connectNodes(sourceNode, targetNode);
+                link.points = d.points;
+                link.hor = d.hor;
                 var line = this_2.generateLine(link);
                 this_2.calcDominantBaseline(link);
                 link.oldLine = link.line;

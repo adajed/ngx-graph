@@ -296,10 +296,10 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
 
         // Dagre to recalc the layout
         if (this._use_dagre_layout) {
-            console.log('using dagre');
+            // console.log('using dagre');
             dagre.layout(this.graph);
         } else {
-            console.log('not using dagre');
+            // console.log('not using dagre');
         }
 
         // Tranposes view options to the node
@@ -313,49 +313,64 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
         });
 
         // Update the labels to the new positions
-        const newLinks = [];
-        for (const k in this.graph._edgeLabels) {
-            const l = this.graph._edgeLabels[k];
+        if (this._use_dagre_layout) {
+            const newLinks = [];
+            for (const k in this.graph._edgeLabels) {
+                const l = this.graph._edgeLabels[k];
 
-            const normKey = k.replace(/[^\w]*/g, '');
-            let oldLink = this._oldLinks.find(ol => `${ol.source}${ol.target}` === normKey);
-            if (!oldLink) {
-                oldLink = this._links.find(nl => `${nl.source}${nl.target}` === normKey);
+                const normKey = k.replace(/[^\w]*/g, '');
+                let oldLink = this._oldLinks.find(ol => `${ol.source}${ol.target}` === normKey);
+                if (!oldLink) {
+                    oldLink = this._links.find(nl => `${nl.source}${nl.target}` === normKey);
+                }
+
+                oldLink.oldLine = oldLink.line;
+
+                const points = l.points;
+                const line = this.generateLine(l);
+
+                const newLink = Object.assign({}, oldLink);
+                newLink.line = line;
+                newLink.points = points;
+
+                const textPos = points[Math.floor(points.length / 2)];
+                if (textPos) {
+                    newLink.textTransform = `translate(${(textPos.x) || 0},${(textPos.y) || 0})`;
+                }
+
+                newLink.textAngle = 0;
+                if (!newLink.oldLine) {
+                    newLink.oldLine = newLink.line;
+                }
+
+                this.calcDominantBaseline(newLink);
+                newLinks.push(newLink);
             }
 
-            oldLink.oldLine = oldLink.line;
-
-            const points = l.points;
-            const line = this.generateLine(l);
-
-            const newLink = Object.assign({}, oldLink);
-            newLink.line = line;
-            newLink.points = points;
-
-            const textPos = points[Math.floor(points.length / 2)];
-            if (textPos) {
-                newLink.textTransform = `translate(${(textPos.x) || 0},${(textPos.y) || 0})`;
-            }
-
-            newLink.textAngle = 0;
-            if (!newLink.oldLine) {
-                newLink.oldLine = newLink.line;
-            }
-
-            this.calcDominantBaseline(newLink);
-            newLinks.push(newLink);
+            this._links = newLinks;
+            // console.log(this._links);
+        } else {
+            this._links = this._links.map( link => {
+                const sourceNode = this._nodes.find(n => n.id === link.source);
+                const targetNode = this._nodes.find(n => n.id === link.target);
+                const d = this._connectNodes(sourceNode, targetNode);
+                // console.log(d.points);
+                link.points = d.points;
+                link.hor = d.hor;
+                link.line = this.generateLine(link);
+                return link;
+            });
+            // console.log(this._links);
         }
-
-        this._links = newLinks;
 
         // Map the old links for animations
-        if (this._links) {
-            this._oldLinks = this._links.map(l => {
-                const newL = Object.assign({}, l);
-                newL.oldLine = l.line;
-                return newL;
-            });
-        }
+        // if (this._links) {
+        //     this._oldLinks = this._links.map(l => {
+        //         const newL = Object.assign({}, l);
+        //         newL.oldLine = l.line;
+        //         return newL;
+        //     });
+        // }
 
         // Calculate the height/width total
         this.graphDims.width = Math.max(...this._nodes.map(n => n.x + n.width));
@@ -371,7 +386,7 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
             }
         }
 
-        requestAnimationFrame(() => this.redrawLines());
+        requestAnimationFrame(() => this.redrawLines(false));
         this.cd.markForCheck();
     }
 
@@ -415,24 +430,25 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
             node => node.x === undefined || node.y === undefined
         );
         if (pos_given) {
+            // console.log('position given!');
             this._use_dagre_layout = false;
 
-            this._links = this.links.map( link => {
-                const sourceNode = this._nodes.find(n => n.id === link.source);
-                const targetNode = this._nodes.find(n => n.id === link.target);
-                link.points, link.hor = this._connectNodes(sourceNode, targetNode);
-                return link;
-            });
-            this._nodes = this.nodes.map(n => {
-                return Object.assign({}, n);
-            });
+            this._nodes = this.nodes;
+            // this._nodes = this.nodes.map(n => {
+            //     return Object.assign({}, n);
+            // });
 
+            this._links = this.links.map(l => {
+                const newLink = Object.assign({}, l);
+                if (!newLink.id) newLink.id = id();
+                return newLink;
+            });
+            // console.log(this._links);
+
+            // this._links = this.links;
             for (const node of this._nodes) {
                 node.width = 20;
                 node.height = 30;
-
-                // update dagre
-                this.graph.setNode(node.id, node);
 
                 // set view options
                 node.options = {
@@ -460,9 +476,10 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
             return { /* empty */ };
         });
 
-        this._nodes = this.nodes.map(n => {
-            return Object.assign({}, n);
-        });
+        // this._nodes = this.nodes.map(n => {
+        //     return Object.assign({}, n);
+        // });
+        this._nodes = this.nodes;
 
         this._links = this.links.map(l => {
             const newLink = Object.assign({}, l);
@@ -640,7 +657,7 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
         this.pan(event.movementX, event.movementY);
     }
 
-    private _connectNodes(source, target) {
+    _connectNodes(source, target) {
         // determine new arrow position
         let dir = source.x <= target.x ? -1 : 1;
         let startingPoint = {
@@ -666,7 +683,10 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
                 y: target.y + dir * (target.height / 2)
             };
         }
-        return [startingPoint, endingPoint], ifHorizontal;
+        return {
+            points: [startingPoint, endingPoint],
+            hor: ifHorizontal
+        };
     }
 
     /**
@@ -686,14 +706,15 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
         const y = (node.y - (node.height / 2));
         node.options.transform = `translate(${x}, ${y})`;
 
-        console.log(node.x + ', ' + node.y);
         for (const link of this._links) {
             if (link.target === node.id || link.source === node.id) {
                 const sourceNode = this._nodes.find(n => n.id === link.source);
                 const targetNode = this._nodes.find(n => n.id === link.target);
 
                 // generate new points
-                link.points, link.hor = this._connectNodes(sourceNode, targetNode);
+                const d = this._connectNodes(sourceNode, targetNode);
+                link.points = d.points;
+                link.hor = d.hor;
                 const line = this.generateLine(link);
                 this.calcDominantBaseline(link);
                 link.oldLine = link.line;
