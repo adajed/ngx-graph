@@ -288,6 +288,7 @@ var GraphComponent = (function (_super) {
             this._links = this._links.map(function (link) {
                 var sourceNode = _this._nodes.find(function (n) { return n.id === link.source; });
                 var targetNode = _this._nodes.find(function (n) { return n.id === link.target; });
+                console.log(sourceNode + ', ' + targetNode);
                 var d = _this._connectNodes(sourceNode, targetNode);
                 // console.log(d.points);
                 link.points = d.points;
@@ -382,6 +383,7 @@ var GraphComponent = (function (_super) {
          */
     function () {
         var _this = this;
+        console.log(this.nodes);
         var pos_given = !this.nodes.some(function (node) { return node.x === undefined || node.y === undefined; });
         if (pos_given) {
             // console.log('position given!');

@@ -353,6 +353,7 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
             this._links = this._links.map( link => {
                 const sourceNode = this._nodes.find(n => n.id === link.source);
                 const targetNode = this._nodes.find(n => n.id === link.target);
+                console.log(sourceNode + ', ' + targetNode);
                 const d = this._connectNodes(sourceNode, targetNode);
                 // console.log(d.points);
                 link.points = d.points;
@@ -426,6 +427,7 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
      * @memberOf GraphComponent
      */
     createGraph(): void {
+        console.log(this.nodes);
         const pos_given = !this.nodes.some(
             node => node.x === undefined || node.y === undefined
         );
