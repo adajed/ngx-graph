@@ -297,9 +297,19 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
         // Dagre to recalc the layout
         if (this._use_dagre_layout) {
             // console.log('using dagre');
+            const savedPos = new Map;
+            this._nodes.forEach(node => {
+                savedPos.set(node.id, {x: node.x, y: node.y});
+            });
             dagre.layout(this.graph);
-        } else {
-            // console.log('not using dagre');
+            this._nodes = this._nodes.map(node => {
+                const pos = savedPos.get(node.id);
+                if (pos.x !== undefined && pos.y !== undefined) {
+                    node.x = pos.x;
+                    node.y = pos.y;
+                }
+                return node;
+            });
         }
 
         // Tranposes view options to the node
@@ -311,67 +321,17 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
                 transform: `translate(${(n.x - n.width / 2) || 0}, ${(n.y - n.height / 2) || 0})`
             };
         });
+        this._links = this._links.map( link => {
+            const sourceNode = this._nodes.find(n => n.id === link.source);
+            const targetNode = this._nodes.find(n => n.id === link.target);
+            const d = this._connectNodes(sourceNode, targetNode);
+            // console.log(d.points);
+            link.points = d.points;
+            link.hor = d.hor;
+            link.line = this.generateLine(link);
+            return link;
+        });
 
-        // Update the labels to the new positions
-        if (this._use_dagre_layout) {
-            const newLinks = [];
-            for (const k in this.graph._edgeLabels) {
-                const l = this.graph._edgeLabels[k];
-
-                const normKey = k.replace(/[^\w]*/g, '');
-                let oldLink = this._oldLinks.find(ol => `${ol.source}${ol.target}` === normKey);
-                if (!oldLink) {
-                    oldLink = this._links.find(nl => `${nl.source}${nl.target}` === normKey);
-                }
-
-                oldLink.oldLine = oldLink.line;
-
-                const points = l.points;
-                const line = this.generateLine(l);
-
-                const newLink = Object.assign({}, oldLink);
-                newLink.line = line;
-                newLink.points = points;
-
-                const textPos = points[Math.floor(points.length / 2)];
-                if (textPos) {
-                    newLink.textTransform = `translate(${(textPos.x) || 0},${(textPos.y) || 0})`;
-                }
-
-                newLink.textAngle = 0;
-                if (!newLink.oldLine) {
-                    newLink.oldLine = newLink.line;
-                }
-
-                this.calcDominantBaseline(newLink);
-                newLinks.push(newLink);
-            }
-
-            this._links = newLinks;
-            // console.log(this._links);
-        } else {
-            this._links = this._links.map( link => {
-                const sourceNode = this._nodes.find(n => n.id === link.source);
-                const targetNode = this._nodes.find(n => n.id === link.target);
-                console.log(sourceNode + ', ' + targetNode);
-                const d = this._connectNodes(sourceNode, targetNode);
-                // console.log(d.points);
-                link.points = d.points;
-                link.hor = d.hor;
-                link.line = this.generateLine(link);
-                return link;
-            });
-            // console.log(this._links);
-        }
-
-        // Map the old links for animations
-        // if (this._links) {
-        //     this._oldLinks = this._links.map(l => {
-        //         const newL = Object.assign({}, l);
-        //         newL.oldLine = l.line;
-        //         return newL;
-        //     });
-        // }
 
         // Calculate the height/width total
         this.graphDims.width = Math.max(...this._nodes.map(n => n.x + n.width));
@@ -432,7 +392,7 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
             node => node.x === undefined || node.y === undefined
         );
         if (pos_given) {
-            // console.log('position given!');
+            console.log('position given!');
             this._use_dagre_layout = false;
 
             this._nodes = this.nodes;
@@ -462,6 +422,7 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
             requestAnimationFrame(() => this.draw());
             return;
         }
+        this._use_dagre_layout = true;
         this.graph = new dagre.graphlib.Graph();
         this.graph.setGraph({
             rankdir: this.orientation,
@@ -495,6 +456,7 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
 
             // update dagre
             this.graph.setNode(node.id, node);
+            console.log(node);
 
             // set view options
             node.options = {

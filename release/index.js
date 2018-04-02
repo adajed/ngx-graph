@@ -38600,10 +38600,19 @@ var graph_component_GraphComponent = (function (_super) {
         // Dagre to recalc the layout
         if (this._use_dagre_layout) {
             // console.log('using dagre');
+            var savedPos_1 = new Map;
+            this._nodes.forEach(function (node) {
+                savedPos_1.set(node.id, { x: node.x, y: node.y });
+            });
             dagre["layout"](this.graph);
-        }
-        else {
-            // console.log('not using dagre');
+            this._nodes = this._nodes.map(function (node) {
+                var pos = savedPos_1.get(node.id);
+                if (pos.x !== undefined && pos.y !== undefined) {
+                    node.x = pos.x;
+                    node.y = pos.y;
+                }
+                return node;
+            });
         }
         // Tranposes view options to the node
         var index = {};
@@ -38614,62 +38623,16 @@ var graph_component_GraphComponent = (function (_super) {
                 transform: "translate(" + ((n.x - n.width / 2) || 0) + ", " + ((n.y - n.height / 2) || 0) + ")"
             };
         });
-        // Update the labels to the new positions
-        if (this._use_dagre_layout) {
-            var newLinks = [];
-            var _loop_1 = function (k) {
-                var l = this_1.graph._edgeLabels[k];
-                var normKey = k.replace(/[^\w]*/g, '');
-                var oldLink = this_1._oldLinks.find(function (ol) { return "" + ol.source + ol.target === normKey; });
-                if (!oldLink) {
-                    oldLink = this_1._links.find(function (nl) { return "" + nl.source + nl.target === normKey; });
-                }
-                oldLink.oldLine = oldLink.line;
-                var points = l.points;
-                var line = this_1.generateLine(l);
-                var newLink = Object.assign({}, oldLink);
-                newLink.line = line;
-                newLink.points = points;
-                var textPos = points[Math.floor(points.length / 2)];
-                if (textPos) {
-                    newLink.textTransform = "translate(" + ((textPos.x) || 0) + "," + ((textPos.y) || 0) + ")";
-                }
-                newLink.textAngle = 0;
-                if (!newLink.oldLine) {
-                    newLink.oldLine = newLink.line;
-                }
-                this_1.calcDominantBaseline(newLink);
-                newLinks.push(newLink);
-            };
-            var this_1 = this;
-            for (var k in this.graph._edgeLabels) {
-                _loop_1(k);
-            }
-            this._links = newLinks;
-            // console.log(this._links);
-        }
-        else {
-            this._links = this._links.map(function (link) {
-                var sourceNode = _this._nodes.find(function (n) { return n.id === link.source; });
-                var targetNode = _this._nodes.find(function (n) { return n.id === link.target; });
-                console.log(sourceNode + ', ' + targetNode);
-                var d = _this._connectNodes(sourceNode, targetNode);
-                // console.log(d.points);
-                link.points = d.points;
-                link.hor = d.hor;
-                link.line = _this.generateLine(link);
-                return link;
-            });
-            // console.log(this._links);
-        }
-        // Map the old links for animations
-        // if (this._links) {
-        //     this._oldLinks = this._links.map(l => {
-        //         const newL = Object.assign({}, l);
-        //         newL.oldLine = l.line;
-        //         return newL;
-        //     });
-        // }
+        this._links = this._links.map(function (link) {
+            var sourceNode = _this._nodes.find(function (n) { return n.id === link.source; });
+            var targetNode = _this._nodes.find(function (n) { return n.id === link.target; });
+            var d = _this._connectNodes(sourceNode, targetNode);
+            // console.log(d.points);
+            link.points = d.points;
+            link.hor = d.hor;
+            link.line = _this.generateLine(link);
+            return link;
+        });
         // Calculate the height/width total
         this.graphDims.width = Math.max.apply(Math, this._nodes.map(function (n) { return n.x + n.width; }));
         this.graphDims.height = Math.max.apply(Math, this._nodes.map(function (n) { return n.y + n.height; }));
@@ -38724,7 +38687,7 @@ var graph_component_GraphComponent = (function (_super) {
         console.log(this.nodes);
         var pos_given = !this.nodes.some(function (node) { return node.x === undefined || node.y === undefined; });
         if (pos_given) {
-            // console.log('position given!');
+            console.log('position given!');
             this._use_dagre_layout = false;
             this._nodes = this.nodes;
             // this._nodes = this.nodes.map(n => {
@@ -38751,6 +38714,7 @@ var graph_component_GraphComponent = (function (_super) {
             requestAnimationFrame(function () { return _this.draw(); });
             return;
         }
+        this._use_dagre_layout = true;
         this.graph = new dagre["graphlib"].Graph();
         this.graph.setGraph({
             rankdir: this.orientation,
@@ -38781,6 +38745,7 @@ var graph_component_GraphComponent = (function (_super) {
             node.height = 30;
             // update dagre
             this.graph.setNode(node.id, node);
+            console.log(node);
             // set view options
             node.options = {
                 color: this.colors.getColor(this.groupResultsBy(node)),
@@ -38963,24 +38928,24 @@ var graph_component_GraphComponent = (function (_super) {
         var x = (node.x - (node.width / 2));
         var y = (node.y - (node.height / 2));
         node.options.transform = "translate(" + x + ", " + y + ")";
-        var _loop_2 = function (link) {
+        var _loop_1 = function (link) {
             if (link.target === node.id || link.source === node.id) {
-                var sourceNode = this_2._nodes.find(function (n) { return n.id === link.source; });
-                var targetNode = this_2._nodes.find(function (n) { return n.id === link.target; });
+                var sourceNode = this_1._nodes.find(function (n) { return n.id === link.source; });
+                var targetNode = this_1._nodes.find(function (n) { return n.id === link.target; });
                 // generate new points
-                var d = this_2._connectNodes(sourceNode, targetNode);
+                var d = this_1._connectNodes(sourceNode, targetNode);
                 link.points = d.points;
                 link.hor = d.hor;
-                var line = this_2.generateLine(link);
-                this_2.calcDominantBaseline(link);
+                var line = this_1.generateLine(link);
+                this_1.calcDominantBaseline(link);
                 link.oldLine = link.line;
                 link.line = line;
             }
         };
-        var this_2 = this;
+        var this_1 = this;
         for (var _i = 0, _a = this._links; _i < _a.length; _i++) {
             var link = _a[_i];
-            _loop_2(link);
+            _loop_1(link);
         }
         this.redrawLines(false);
     };
