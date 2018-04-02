@@ -94,8 +94,8 @@ export class AppComponent implements OnInit {
         const country = this.countries[Math.floor(Math.random() * this.countries.length)];
         const add = Math.random() < 0.7;
         const remove = Math.random() < 0.5;
-        const x = Math.random() * 500 + 100;
-        const y = Math.random() * 500 + 100;
+        // const x = Math.random() * 500 + 100;
+        // const y = Math.random() * 500 + 100;
 
         if (add) {
             // directed graph
@@ -103,8 +103,8 @@ export class AppComponent implements OnInit {
             const hNode = {
                 id: id(),
                 label: country,
-                x: x,
-                y: y
+                // x: x,
+                // y: y
             };
             // console.log(hNode);
 

@@ -262,19 +262,19 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
                     // Skip drawing if element is not displayed - Firefox would throw an error here
                     return;
                 }
-                if (this.nodeHeight) {
-                    node.height = this.nodeHeight;
-                } else {
-                    node.height = dims.height;
-                }
-
-                if (this.nodeMaxHeight) node.height = Math.max(node.height, this.nodeMaxHeight);
-                if (this.nodeMinHeight) node.height = Math.min(node.height, this.nodeMinHeight);
-
                 if (this.nodeWidth) {
                     node.width = this.nodeWidth;
                 } else {
-                    // calculate the width
+                    node.width = dims.width;
+                }
+
+                if (this.nodeMaxWidth) node.width = Math.max(node.width, this.nodeMaxHeight);
+                if (this.nodeMinWidth) node.width = Math.min(node.width, this.nodeMinHeight);
+
+                if (this.nodeHeight) {
+                    node.height = this.nodeHeight;
+                } else {
+                    // calculate the height
                     if (nativeElement.getElementsByTagName('text').length) {
                         let textDims;
                         try {
@@ -283,9 +283,9 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
                             // Skip drawing if element is not displayed - Firefox would throw an error here
                             return;
                         }
-                        node.width = textDims.width + 20;
+                        node.height = textDims.width + 20;
                     } else {
-                        node.width = dims.width;
+                        node.height = dims.width;
                     }
                 }
 
