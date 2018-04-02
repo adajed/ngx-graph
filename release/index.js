@@ -38561,21 +38561,21 @@ var graph_component_GraphComponent = (function (_super) {
                     // Skip drawing if element is not displayed - Firefox would throw an error here
                     return;
                 }
-                if (_this.nodeHeight) {
-                    node.height = _this.nodeHeight;
-                }
-                else {
-                    node.height = dims.height;
-                }
-                if (_this.nodeMaxHeight)
-                    node.height = Math.max(node.height, _this.nodeMaxHeight);
-                if (_this.nodeMinHeight)
-                    node.height = Math.min(node.height, _this.nodeMinHeight);
                 if (_this.nodeWidth) {
                     node.width = _this.nodeWidth;
                 }
                 else {
-                    // calculate the width
+                    node.width = dims.width;
+                }
+                if (_this.nodeMaxWidth)
+                    node.width = Math.max(node.width, _this.nodeMaxHeight);
+                if (_this.nodeMinWidth)
+                    node.width = Math.min(node.width, _this.nodeMinHeight);
+                if (_this.nodeHeight) {
+                    node.height = _this.nodeHeight;
+                }
+                else {
+                    // calculate the height
                     if (nativeElement.getElementsByTagName('text').length) {
                         var textDims = void 0;
                         try {
@@ -38585,10 +38585,10 @@ var graph_component_GraphComponent = (function (_super) {
                             // Skip drawing if element is not displayed - Firefox would throw an error here
                             return;
                         }
-                        node.width = textDims.width + 20;
+                        node.height = textDims.width + 20;
                     }
                     else {
-                        node.width = dims.width;
+                        node.height = dims.width;
                     }
                 }
                 if (_this.nodeMaxWidth)
