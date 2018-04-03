@@ -262,19 +262,19 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
                     // Skip drawing if element is not displayed - Firefox would throw an error here
                     return;
                 }
-                if (this.nodeWidth) {
-                    node.width = this.nodeWidth;
-                } else {
-                    node.width = dims.width;
-                }
-
-                if (this.nodeMaxWidth) node.width = Math.max(node.width, this.nodeMaxHeight);
-                if (this.nodeMinWidth) node.width = Math.min(node.width, this.nodeMinHeight);
-
                 if (this.nodeHeight) {
                     node.height = this.nodeHeight;
                 } else {
-                    // calculate the height
+                    node.height = dims.height;
+                }
+
+                if (this.nodeMaxHeight) node.height = Math.max(node.height, this.nodeMaxHeight);
+                if (this.nodeMinHeight) node.height = Math.min(node.height, this.nodeMinHeight);
+
+                if (this.nodeWidth) {
+                    node.width = this.nodeWidth;
+                } else {
+                    // calculate the width
                     if (nativeElement.getElementsByTagName('text').length) {
                         let textDims;
                         try {
@@ -283,9 +283,9 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
                             // Skip drawing if element is not displayed - Firefox would throw an error here
                             return;
                         }
-                        node.height = textDims.width + 20;
+                        node.width = textDims.width + 20;
                     } else {
-                        node.height = dims.width;
+                        node.width = dims.width;
                     }
                 }
 
@@ -296,7 +296,6 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
 
         // Dagre to recalc the layout
         if (this._use_dagre_layout) {
-            // console.log('using dagre');
             const savedPos = new Map;
             this._nodes.forEach(node => {
                 savedPos.set(node.id, {x: node.x, y: node.y});
@@ -325,7 +324,6 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
             const sourceNode = this._nodes.find(n => n.id === link.source);
             const targetNode = this._nodes.find(n => n.id === link.target);
             const d = this._connectNodes(sourceNode, targetNode);
-            // console.log(d.points);
             link.points = d.points;
             link.hor = d.hor;
             link.line = this.generateLine(link);
@@ -387,12 +385,10 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
      * @memberOf GraphComponent
      */
     createGraph(): void {
-        console.log(this.nodes);
         const pos_given = !this.nodes.some(
             node => node.x === undefined || node.y === undefined
         );
         if (pos_given) {
-            console.log('position given!');
             this._use_dagre_layout = false;
 
             this._nodes = this.nodes;
@@ -405,7 +401,6 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
                 if (!newLink.id) newLink.id = id();
                 return newLink;
             });
-            // console.log(this._links);
 
             // this._links = this.links;
             for (const node of this._nodes) {
@@ -456,7 +451,6 @@ export class GraphComponent extends BaseChartComponent implements AfterViewInit 
 
             // update dagre
             this.graph.setNode(node.id, node);
-            console.log(node);
 
             // set view options
             node.options = {

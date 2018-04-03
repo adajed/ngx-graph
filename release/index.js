@@ -38561,21 +38561,21 @@ var graph_component_GraphComponent = (function (_super) {
                     // Skip drawing if element is not displayed - Firefox would throw an error here
                     return;
                 }
-                if (_this.nodeWidth) {
-                    node.width = _this.nodeWidth;
-                }
-                else {
-                    node.width = dims.width;
-                }
-                if (_this.nodeMaxWidth)
-                    node.width = Math.max(node.width, _this.nodeMaxHeight);
-                if (_this.nodeMinWidth)
-                    node.width = Math.min(node.width, _this.nodeMinHeight);
                 if (_this.nodeHeight) {
                     node.height = _this.nodeHeight;
                 }
                 else {
-                    // calculate the height
+                    node.height = dims.height;
+                }
+                if (_this.nodeMaxHeight)
+                    node.height = Math.max(node.height, _this.nodeMaxHeight);
+                if (_this.nodeMinHeight)
+                    node.height = Math.min(node.height, _this.nodeMinHeight);
+                if (_this.nodeWidth) {
+                    node.width = _this.nodeWidth;
+                }
+                else {
+                    // calculate the width
                     if (nativeElement.getElementsByTagName('text').length) {
                         var textDims = void 0;
                         try {
@@ -38585,10 +38585,10 @@ var graph_component_GraphComponent = (function (_super) {
                             // Skip drawing if element is not displayed - Firefox would throw an error here
                             return;
                         }
-                        node.height = textDims.width + 20;
+                        node.width = textDims.width + 20;
                     }
                     else {
-                        node.height = dims.width;
+                        node.width = dims.width;
                     }
                 }
                 if (_this.nodeMaxWidth)
@@ -38599,7 +38599,6 @@ var graph_component_GraphComponent = (function (_super) {
         }
         // Dagre to recalc the layout
         if (this._use_dagre_layout) {
-            // console.log('using dagre');
             var savedPos_1 = new Map;
             this._nodes.forEach(function (node) {
                 savedPos_1.set(node.id, { x: node.x, y: node.y });
@@ -38627,7 +38626,6 @@ var graph_component_GraphComponent = (function (_super) {
             var sourceNode = _this._nodes.find(function (n) { return n.id === link.source; });
             var targetNode = _this._nodes.find(function (n) { return n.id === link.target; });
             var d = _this._connectNodes(sourceNode, targetNode);
-            // console.log(d.points);
             link.points = d.points;
             link.hor = d.hor;
             link.line = _this.generateLine(link);
@@ -38684,10 +38682,8 @@ var graph_component_GraphComponent = (function (_super) {
      */
     GraphComponent.prototype.createGraph = function () {
         var _this = this;
-        console.log(this.nodes);
         var pos_given = !this.nodes.some(function (node) { return node.x === undefined || node.y === undefined; });
         if (pos_given) {
-            console.log('position given!');
             this._use_dagre_layout = false;
             this._nodes = this.nodes;
             // this._nodes = this.nodes.map(n => {
@@ -38699,7 +38695,6 @@ var graph_component_GraphComponent = (function (_super) {
                     newLink.id = id_id();
                 return newLink;
             });
-            // console.log(this._links);
             // this._links = this.links;
             for (var _i = 0, _a = this._nodes; _i < _a.length; _i++) {
                 var node = _a[_i];
@@ -38745,7 +38740,6 @@ var graph_component_GraphComponent = (function (_super) {
             node.height = 30;
             // update dagre
             this.graph.setNode(node.id, node);
-            console.log(node);
             // set view options
             node.options = {
                 color: this.colors.getColor(this.groupResultsBy(node)),
